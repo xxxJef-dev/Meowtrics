@@ -1,5 +1,5 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   CalculatorState,
   LaborInputs,
@@ -11,7 +11,7 @@ import {
   MaterialRowData,
 } from "@/types/calculator";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { calculateResults } from "@/lib/calculations";
+import { calculateResults, formatCurrency } from "@/lib/calculations";
 import { buildFormulaSteps } from "@/lib/formulaSteps";
 import Header from "@/components/Header";
 import ProductSection from "@/components/sections/ProductSection";
@@ -95,6 +95,7 @@ export default function Calculator() {
     "meowtrics-v2",
     defaultState
   );
+  const [resultOpen, setResultOpen] = useState(false);
 
   const results = useMemo(() => calculateResults(state), [state]);
   const formulaSteps = useMemo(
@@ -240,15 +241,22 @@ export default function Calculator() {
           <FormulaBreakdown steps={formulaSteps} />
         </div>
 
+        {/* View Results button */}
         <div
           className="animate-fade-slide-up"
           style={{ animationDelay: "350ms" }}
         >
-          <ResultCard
-            state={state}
-            results={results}
-            onReset={reset}
-          />
+          <button
+            type="button"
+            onClick={() => setResultOpen(true)}
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#7C3AED] to-[#A855F7] text-white font-heading font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+          >
+            <span>View Results</span>
+            <span className="text-xl">🐱</span>
+            <span className="text-sm font-normal opacity-80">
+              {formatCurrency(results.finalPrice)}
+            </span>
+          </button>
         </div>
 
         {/* Footer */}
@@ -267,6 +275,15 @@ export default function Calculator() {
           </p>
         </footer>
       </div>
+
+      {/* Result popup modal */}
+      <ResultCard
+        state={state}
+        results={results}
+        onReset={reset}
+        isOpen={resultOpen}
+        onClose={() => setResultOpen(false)}
+      />
     </div>
   );
 }
